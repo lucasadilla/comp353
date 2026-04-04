@@ -58,8 +58,8 @@ CREATE TABLE Rental(
 	PRIMARY KEY(RentalID),
 	FOREIGN KEY CustomerID REFERENCES Customer(CustomerID),
 	FOREIGN KEY ReservationID REFERENCES Reservation(ReservationID),
-CHECK(CustomerID IN(SELECT CustomerID from Customer)),
-CHECK(ReservationID IN(SELECT ReservationID from Reservation)),
+	CHECK(CustomerID IN(SELECT CustomerID from Customer)),
+	CHECK(ReservationID IN(SELECT ReservationID from Reservation)),
 );
 CREATE TABLE Mission(
 	MissionID CHAR(10) NOT NULL,
@@ -91,3 +91,37 @@ CREATE TABLE Sheet(
 	FOREIGN KEY MissionID REFERENCES Mission(MissionID),
 	CHECK(MissionID IN(SELECT MissionID from Mission)),
 );
+CREATE TABLE Invoice(
+	InvoiceID CHAR(10) NOT NULL,
+	IssueDate DATE NOT NULL,
+	TotalAmount DECIMAL(65,2) NOT NULL,
+	CustomerID char(10) NOT NULL,
+	PRIMARY KEY(InvoiceID),
+	FOREIGN KEY CustomerID REFERENCES Customer(CustomerID),
+	CHECK(CustomerID IN(SELECT CustomerID from Customer)),
+)
+CREATE TABLE Invoice_line(
+	InvoiceID CHAR(10) NOT NULL,
+	MissionID CHAR(10) NOT NULL,
+	DurationCost DECIMAL(65,2) NOT NULL,
+	MileageCost DECIMAL(65,2) NOT NULL,
+	PRIMARY KEY(InvoiceID,MissionID),
+	FOREIGN KEY InvoiceID REFERENCES Invoice(InvoiceID),
+	FOREIGN KEY MissionID REFERENCES Mission(MissionID),
+	CHECK(InvoiceID IN(SELECT InvoiceID from Invoice)),
+	CHECK(MissionID IN(SELECT MissionID from Mission)),
+)
+CREATE TABLE Invoice_payment(
+	PaymentID CHAR(10) NOT NULL,
+	Amount DECIMAL(65,2) NOT NULL,
+	PaymentType##
+	PaymentDate DATE NOT NULL,
+	InvoiceID CHAR(10) NOT NULL,
+	CustomerID CHAR(10) NOT NULL,
+	PRIMARY KEY(PaymentID),
+	FOREIGN KEY InvoiceID REFERENCES Invoice(InvoiceID),
+	FOREIGN KEY CustomerID REFERENCES Customer(CustomerID),
+	CHECK(InvoiceID IN(SELECT InvoiceID from Invoice)),
+	CHECK(MissionID IN(SELECT MissionID from Mission)),
+	CHECK(Amount = (SELECT TotalAmount from Invoice where invoiceID=Invoice.InvoiceID))
+)
