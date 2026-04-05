@@ -125,7 +125,7 @@ CREATE TABLE Invoice_payment(
 	CHECK(InvoiceID IN(SELECT InvoiceID FROM Invoice)),
 	CHECK(MissionID IN(SELECT MissionID FROM Mission)),
 	CHECK(Amount = (SELECT TotalAmount FROM Invoice WHERE invoiceID=Invoice.InvoiceID)),
-	CHECK(PaymentType IN (SELECT PaymentType FROM ))
+	CHECK(PaymentType IN (SELECT PaymentType FROM Payment_type))
 )
 CREATE TABLE Payment_type(
 	PaymentType VARCHAR(10) NOT NULL,
