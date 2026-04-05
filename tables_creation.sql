@@ -159,4 +159,5 @@ CREATE TABLE Check_type(
 	ReceiverName CHAR(8) NOT NULL,
 	PRIMARY KEY(CheckNumber,SenderBankNb),
 	FOREIGN KEY (typeID) REFERENCES Payment_instance(TypeID),
+	CHECK(ReceiverName='RENTRUCK'),
 )
