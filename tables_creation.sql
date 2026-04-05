@@ -123,5 +123,31 @@ CREATE TABLE Invoice_payment(
 	FOREIGN KEY CustomerID REFERENCES Customer(CustomerID),
 	CHECK(InvoiceID IN(SELECT InvoiceID from Invoice)),
 	CHECK(MissionID IN(SELECT MissionID from Mission)),
-	CHECK(Amount = (SELECT TotalAmount from Invoice where invoiceID=Invoice.InvoiceID))
+	CHECK(Amount = (SELECT TotalAmount from Invoice where invoiceID=Invoice.InvoiceID)),
+)
+CREATE TABLE Payment_type(
+	PaymentType CHAR(10) NOT NULL,
+	PRIMARY KEY(PaymentType),
+	CONSTRAINT Allowed-Types CHECK(PaymentType IN('cash','credit','check')),
+)
+CREATE TABLE Type_link(
+	TypeID VARCHAR(16) NOT NULL,
+	PaymentType CHAR(10) NOT NULL,
+	PRIMARY KEY(TypeID),
+	FOREIGN KEY PaymentType REFERENCES Payment_type(PaymentType),
+	CHECK (PaymentType IN (SELECT PaymentType FROM Payment_type)),
+)
+CREATE TABLE Cash_type(
+
+)
+CREATE TABLE Credit_card_type(
+	CardID CHAR(16) NOT NULL,
+	CardName VARCHAR(32) NOT NULL,
+	ExpirationDate DATE NOT NULL,
+)
+CREATE TABLE Check_type(
+	CheckNumber VARCHAR(8) NOT NULL,
+	SenderBankNb VARCHAR(16) NOT NULL,
+	ReceiverName CHAR(8) NOT NULL,
+	PRIMARY KEY(CheckNumber,SenderBankNb),
 )
