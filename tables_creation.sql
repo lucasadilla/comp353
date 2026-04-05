@@ -115,6 +115,7 @@ CREATE TABLE Invoice_payment(
 	PaymentID CHAR(10) NOT NULL,
 	Amount DECIMAL(65,2) NOT NULL,
 	PaymentType VARCHAR(10) NOT NULL,
+	TypeID VARCHAR(16) NOT NULL,
 	PaymentDate DATE NOT NULL,
 	InvoiceID CHAR(10) NOT NULL,
 	CustomerID CHAR(10) NOT NULL,
