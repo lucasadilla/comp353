@@ -6,9 +6,9 @@ USE rentruck;
 CREATE TABLE IF NOT EXISTS Customer(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
     ClientName VARCHAR(16),
-    ClientNumber UNSIGNED BIGINT NOT NULL,
+    ClientNumber CHAR(10) NOT NULL,
     ClientAddress VARCHAR(32),
-    CHECK(ClientNumber BETWEEN 1000000000 AND 9999999999)
+    CHECK(ClientNumber BETWEEN '1000000000' AND '9999999999')
 );
 
 CREATE TABLE IF NOT EXISTS Customer_type(
