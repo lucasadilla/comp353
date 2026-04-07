@@ -1,6 +1,7 @@
 DROP DATABASE IF EXISTS rentruck;
 CREATE DATABASE rentruck;
 USE rentruck;
+
 -- Customer tables
 CREATE TABLE IF NOT EXISTS Customer(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
@@ -26,6 +27,8 @@ CREATE TABLE IF NOT EXISTS Weight_class(
 -- Driver and Vehicle
 CREATE TABLE IF NOT EXISTS Driver(
     DriverID VARCHAR(16) NOT NULL PRIMARY KEY,
+    FirstName VARCHAR(32) NOT NULL,
+    LastName VARCHAR(32) NOT NULL,
     LicenseClass VARCHAR(10) NOT NULL,
     FOREIGN KEY (LicenseClass) REFERENCES Weight_class(Class)
 );
@@ -33,6 +36,7 @@ CREATE TABLE IF NOT EXISTS Driver(
 CREATE TABLE IF NOT EXISTS Vehicle(
     VehicleID VARCHAR(16) NOT NULL PRIMARY KEY,
     OdometerMiles INT NOT NULL,
+    Brand VARCHAR(32) NOT NULL,
     VehicleClass VARCHAR(10) NOT NULL,
     FOREIGN KEY (VehicleClass) REFERENCES Weight_class(Class),
     CHECK(OdometerMiles>=0)
@@ -51,9 +55,9 @@ CREATE TABLE IF NOT EXISTS Reservation(
     FOREIGN KEY (TypeOfVehicle) REFERENCES Weight_class(Class),
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
     CHECK (
-    AppointmentDate > DateOfBooking AND 
-    AppointmentDate <= DATE(DateOfBooking, '+1 year')
-)
+        AppointmentDate > DateOfBooking AND
+        AppointmentDate <= DATE_ADD(DateOfBooking, INTERVAL 1 YEAR)
+    )
 );
 
 CREATE TABLE IF NOT EXISTS Rental(
@@ -97,7 +101,8 @@ CREATE TABLE IF NOT EXISTS Invoice(
     IssueDate DATE NOT NULL,
     TotalAmount DECIMAL(10,2) NOT NULL,
     CustomerID CHAR(10) NOT NULL,
-    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    CHECK (TotalAmount > 0)
 );
 
 CREATE TABLE IF NOT EXISTS Invoice_line(
@@ -107,7 +112,9 @@ CREATE TABLE IF NOT EXISTS Invoice_line(
     MileageCost DECIMAL(10,2) NOT NULL,
     PRIMARY KEY(InvoiceID, MissionID),
     FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
-    FOREIGN KEY (MissionID) REFERENCES Mission(MissionID)
+    FOREIGN KEY (MissionID) REFERENCES Mission(MissionID),
+    CHECK (DurationCost >= 0),
+    CHECK (MileageCost >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS Payment_type(
@@ -132,7 +139,8 @@ CREATE TABLE IF NOT EXISTS Invoice_payment(
     FOREIGN KEY (InvoiceID) REFERENCES Invoice(InvoiceID),
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
     FOREIGN KEY (PaymentType) REFERENCES Payment_type(PaymentType),
-    FOREIGN KEY (TypeID) REFERENCES Payment_instance(TypeID)
+    FOREIGN KEY (TypeID) REFERENCES Payment_instance(TypeID),
+    CHECK (Amount >= 0)
 );
 
 -- Cash, Credit Card, Check

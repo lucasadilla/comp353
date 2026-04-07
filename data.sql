@@ -23,13 +23,19 @@ INSERT INTO Customer_type VALUES
 
 -- Drivers
 INSERT INTO Driver VALUES
-('D001','tourism'),('D002','heavy'),('D003','superheavy'),
-('D004','tourism'),('D005','heavy');
+('D001','Alex','Martin','tourism'),
+('D002','Sam','Nguyen','heavy'),
+('D003','Nora','Singh','superheavy'),
+('D004','Liam','Roy','tourism'),
+('D005','Emma','Tremblay','heavy');
 
 -- Vehicles
 INSERT INTO Vehicle VALUES
-('V001',1000,'tourism'),('V002',2000,'heavy'),('V003',3000,'superheavy'),
-('V004',1500,'tourism'),('V005',2500,'heavy');
+('V001',1000,'Ford','tourism'),
+('V002',2000,'GMC','heavy'),
+('V003',3000,'Volvo','superheavy'),
+('V004',1500,'Mercedes','tourism'),
+('V005',2500,'GMC','heavy');
 
 -- Reservations
 INSERT INTO Reservation VALUES
