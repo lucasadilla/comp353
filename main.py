@@ -1,26 +1,77 @@
-import sqlite3
+import os
+import getpass
 import tkinter as tk
 from tkinter import ttk, messagebox
+import mysql.connector
 
 # ---------- DATABASE SETUP ----------
+DB_CONFIG = {
+    "host": os.getenv("MYSQL_HOST", "ixc353.encs.concordia.ca"),
+    "port": int(os.getenv("MYSQL_PORT", "3306")),
+    "user": os.getenv("MYSQL_USER", "ixc353_4"),
+    "password": os.getenv("MYSQL_PASSWORD", ""),
+    "database": os.getenv("MYSQL_DATABASE", "ixc353_4"),
+}
+
+
+def split_sql_statements(sql_script):
+    statements = []
+    current = []
+    in_single_quote = False
+    in_double_quote = False
+
+    for ch in sql_script:
+        if ch == "'" and not in_double_quote:
+            in_single_quote = not in_single_quote
+        elif ch == '"' and not in_single_quote:
+            in_double_quote = not in_double_quote
+
+        if ch == ";" and not in_single_quote and not in_double_quote:
+            statement = "".join(current).strip()
+            if statement:
+                statements.append(statement)
+            current = []
+        else:
+            current.append(ch)
+
+    trailing = "".join(current).strip()
+    if trailing:
+        statements.append(trailing)
+
+    return statements
+
+
 def load_sql_file(cursor, filename):
     with open(filename, 'r') as f:
         sql_script = f.read()
 
-    # sql_script = sql_script.replace("CREATE DATABASE rentruck;", "")
-    # sql_script = sql_script.replace("USE rentruck;", "")
-    # sql_script = sql_script.replace("DROP DATABASE IF EXISTS rentruck;", "")
-
-    cursor.executescript(sql_script)
+    for statement in split_sql_statements(sql_script):
+        upper_stmt = statement.strip().upper()
+        # Ignore MySQL server-level DB statements; we use the assigned DB account directly.
+        if upper_stmt.startswith("DROP DATABASE"):
+            continue
+        if upper_stmt.startswith("CREATE DATABASE"):
+            continue
+        if upper_stmt.startswith("USE "):
+            continue
+        cursor.execute(statement)
 
 
 def setup_database():
-    conn = sqlite3.connect("rentruck.db")
+    if not DB_CONFIG["password"]:
+        DB_CONFIG["password"] = getpass.getpass("MySQL password: ")
+
+    conn = mysql.connector.connect(
+        host=DB_CONFIG["host"],
+        port=DB_CONFIG["port"],
+        user=DB_CONFIG["user"],
+        password=DB_CONFIG["password"],
+        database=DB_CONFIG["database"],
+    )
     cursor = conn.cursor()
-
-    load_sql_file(cursor, "schema.sql")
-    load_sql_file(cursor, "data.sql")
-
+    if os.getenv("MYSQL_INIT_DB", "1") == "1":
+        load_sql_file(cursor, "schema.sql")
+        load_sql_file(cursor, "data.sql")
     conn.commit()
     return conn
 
@@ -60,7 +111,14 @@ class DatabaseGUI:
 
     # Load table names into dropdown
     def load_table_names(self):
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        self.cursor.execute(
+            """
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = DATABASE()
+            ORDER BY table_name;
+            """
+        )
         tables = [t[0] for t in self.cursor.fetchall()]
         self.table_dropdown['values'] = tables
 
@@ -114,8 +172,10 @@ class DatabaseGUI:
 
 # ---------- MAIN ----------
 if __name__ == "__main__":
-    conn = setup_database()
-
-    root = tk.Tk()
-    app = DatabaseGUI(root, conn)
-    root.mainloop()
+    try:
+        conn = setup_database()
+        root = tk.Tk()
+        app = DatabaseGUI(root, conn)
+        root.mainloop()
+    except Exception as err:
+        messagebox.showerror("Database Error", str(err))
