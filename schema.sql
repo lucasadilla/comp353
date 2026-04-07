@@ -5,8 +5,9 @@ USE rentruck;
 CREATE TABLE IF NOT EXISTS Customer(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
     ClientName VARCHAR(16),
-    ClientNumber CHAR(10) NOT NULL,
-    ClientAddress VARCHAR(32)
+    ClientNumber UNSIGNED BIGINT NOT NULL,
+    ClientAddress VARCHAR(32),
+    CHECK(ClientNumber BETWEEN 1000000000 AND 9999999999)
 );
 
 CREATE TABLE IF NOT EXISTS Customer_type(
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS Vehicle(
     VehicleID VARCHAR(16) NOT NULL PRIMARY KEY,
     OdometerMiles INT NOT NULL,
     VehicleClass VARCHAR(10) NOT NULL,
-    FOREIGN KEY (VehicleClass) REFERENCES Weight_class(Class)
+    FOREIGN KEY (VehicleClass) REFERENCES Weight_class(Class),
+    CHECK(OdometerMiles>=0)
 );
 
 -- Reservations and Rentals
