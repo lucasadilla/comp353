@@ -20,7 +20,7 @@ LEFT JOIN Invoice_payment IP ON I.InvoiceID = IP.InvoiceID
 WHERE IP.InvoiceID IS NULL;
 
 -- f (to add 'Brand' attribute to Vehicle table)
-SELECT DISTINCT D.DriverID
+SELECT DISTINCT D.FirstName, D.LastName
 FROM Driver D
 JOIN Mission M ON D.DriverID = M.DriverID
 JOIN Vehicle V ON M.VehicleID = V.VehicleID
