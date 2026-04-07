@@ -1,16 +1,15 @@
 DROP DATABASE IF EXISTS rentruck;
 CREATE DATABASE rentruck;
 USE rentruck;
-
 -- Customer tables
-CREATE TABLE Customer(
+CREATE TABLE IF NOT EXISTS Customer(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
     ClientName VARCHAR(16),
     ClientNumber CHAR(10) NOT NULL,
     ClientAddress VARCHAR(32)
 );
 
-CREATE TABLE Customer_type(
+CREATE TABLE IF NOT EXISTS Customer_type(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
     Type CHAR(1) NOT NULL,
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
@@ -18,19 +17,19 @@ CREATE TABLE Customer_type(
 );
 
 -- Weight class
-CREATE TABLE Weight_class(
+CREATE TABLE IF NOT EXISTS Weight_class(
     Class VARCHAR(16) NOT NULL PRIMARY KEY,
     CONSTRAINT Allowed_Classes CHECK(Class IN('tourism','heavy','superheavy'))
 );
 
 -- Driver and Vehicle
-CREATE TABLE Driver(
+CREATE TABLE IF NOT EXISTS Driver(
     DriverID VARCHAR(16) NOT NULL PRIMARY KEY,
     LicenseClass VARCHAR(10) NOT NULL,
     FOREIGN KEY (LicenseClass) REFERENCES Weight_class(Class)
 );
 
-CREATE TABLE Vehicle(
+CREATE TABLE IF NOT EXISTS Vehicle(
     VehicleID VARCHAR(16) NOT NULL PRIMARY KEY,
     OdometerMiles INT NOT NULL,
     VehicleClass VARCHAR(10) NOT NULL,
@@ -38,7 +37,7 @@ CREATE TABLE Vehicle(
 );
 
 -- Reservations and Rentals
-CREATE TABLE Reservation(
+CREATE TABLE IF NOT EXISTS Reservation(
     ReservationID CHAR(16) NOT NULL PRIMARY KEY,
     DateOfBooking DATE NOT NULL,
     RendezvousPlace VARCHAR(32),
@@ -49,10 +48,13 @@ CREATE TABLE Reservation(
     CustomerID CHAR(10) NOT NULL,
     FOREIGN KEY (TypeOfVehicle) REFERENCES Weight_class(Class),
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
-    CHECK (AppointmentDate > DateOfBooking AND AppointmentDate <= DateOfBooking + INTERVAL 1 YEAR)
+    CHECK (
+    AppointmentDate > DateOfBooking AND 
+    AppointmentDate <= DATE(DateOfBooking, '+1 year')
+)
 );
 
-CREATE TABLE Rental(
+CREATE TABLE IF NOT EXISTS Rental(
     RentalID CHAR(16) NOT NULL PRIMARY KEY,
     CustomerID CHAR(10) NOT NULL,
     ReservationID CHAR(16) NOT NULL,
@@ -61,7 +63,7 @@ CREATE TABLE Rental(
 );
 
 -- Mission and Sheet
-CREATE TABLE Mission(
+CREATE TABLE IF NOT EXISTS Mission(
     MissionID CHAR(10) NOT NULL PRIMARY KEY,
     StartDay DATE NOT NULL,
     StartTime TIME NOT NULL,
@@ -81,14 +83,14 @@ CREATE TABLE Mission(
     CHECK(StartMiles>0 AND EndMiles>StartMiles)
 );
 
-CREATE TABLE Sheet(
+CREATE TABLE IF NOT EXISTS Sheet(
     SheetID CHAR(10) NOT NULL PRIMARY KEY,
     MissionID CHAR(10) NOT NULL,
     FOREIGN KEY (MissionID) REFERENCES Mission(MissionID)
 );
 
 -- Invoice tables
-CREATE TABLE Invoice(
+CREATE TABLE IF NOT EXISTS Invoice(
     InvoiceID CHAR(10) NOT NULL PRIMARY KEY,
     IssueDate DATE NOT NULL,
     TotalAmount DECIMAL(10,2) NOT NULL,
@@ -96,7 +98,7 @@ CREATE TABLE Invoice(
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
 );
 
-CREATE TABLE Invoice_line(
+CREATE TABLE IF NOT EXISTS Invoice_line(
     InvoiceID CHAR(10) NOT NULL,
     MissionID CHAR(10) NOT NULL,
     DurationCost DECIMAL(10,2) NOT NULL,
@@ -106,18 +108,18 @@ CREATE TABLE Invoice_line(
     FOREIGN KEY (MissionID) REFERENCES Mission(MissionID)
 );
 
-CREATE TABLE Payment_type(
+CREATE TABLE IF NOT EXISTS Payment_type(
     PaymentType VARCHAR(10) NOT NULL PRIMARY KEY,
     CONSTRAINT Allowed_Types CHECK(PaymentType IN('cash','credit','check'))
 );
 
-CREATE TABLE Payment_instance(
+CREATE TABLE IF NOT EXISTS Payment_instance(
     TypeID VARCHAR(16) NOT NULL PRIMARY KEY,
     PaymentType VARCHAR(10) NOT NULL,
     FOREIGN KEY (PaymentType) REFERENCES Payment_type(PaymentType)
 );
 
-CREATE TABLE Invoice_payment(
+CREATE TABLE IF NOT EXISTS Invoice_payment(
     PaymentID CHAR(10) NOT NULL PRIMARY KEY,
     Amount DECIMAL(10,2) NOT NULL,
     PaymentType VARCHAR(10) NOT NULL,
@@ -132,12 +134,12 @@ CREATE TABLE Invoice_payment(
 );
 
 -- Cash, Credit Card, Check
-CREATE TABLE Cash_type(
+CREATE TABLE IF NOT EXISTS Cash_type(
     TypeID VARCHAR(16) NOT NULL PRIMARY KEY,
     FOREIGN KEY (TypeID) REFERENCES Payment_instance(TypeID)
 );
 
-CREATE TABLE Credit_card_type(
+CREATE TABLE IF NOT EXISTS Credit_card_type(
     TypeID VARCHAR(16) NOT NULL,
     CardID CHAR(16) NOT NULL PRIMARY KEY,
     CardName VARCHAR(32) NOT NULL,
@@ -145,7 +147,7 @@ CREATE TABLE Credit_card_type(
     FOREIGN KEY (TypeID) REFERENCES Payment_instance(TypeID)
 );
 
-CREATE TABLE Check_type(
+CREATE TABLE IF NOT EXISTS Check_type(
     TypeID VARCHAR(16) NOT NULL,
     CheckNumber VARCHAR(8) NOT NULL,
     SenderBankNb VARCHAR(16) NOT NULL,
