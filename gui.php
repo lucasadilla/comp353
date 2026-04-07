@@ -68,7 +68,7 @@ if ($action === 'load_table' && $selectedTable) {
     if ($ident === '') {
         $messages[] = ['type'=>'error','text'=>'Invalid table name.'];
     } else {
-        $queryText = "SELECT * FROM {$ident} LIMIT 100";
+        $queryText = "SELECT * FROM {$ident}";
         $action = 'run_query';
     }
 }
@@ -145,7 +145,7 @@ if ($action === 'run_query' && trim($queryText) !== '') {
 
     <div>
         <label><strong>Enter SQL Query</strong></label>
-        <textarea name="query" placeholder="SELECT * FROM table LIMIT 100"><?=htmlspecialchars($queryText)?></textarea>
+        <textarea name="query" placeholder="SELECT * FROM table"><?=htmlspecialchars($queryText)?></textarea>
     </div>
 
     <div style="margin-top:8px;">
