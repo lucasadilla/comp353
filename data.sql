@@ -1,3 +1,5 @@
+USE rentruck;
+
 -- Weight class
 INSERT INTO Weight_class VALUES
 ('tourism'),('heavy'),('superheavy');
@@ -41,7 +43,7 @@ INSERT INTO Reservation VALUES
 INSERT INTO Rental VALUES
 ('RE001','C001','R001'),('RE002','C002','R002'),
 ('RE003','C003','R003'),('RE004','C004','R004'),
-('RE005','C005','R005');
+('RE005','C005','R005'),('RE006','C002','R001');
 
 -- Missions
 INSERT INTO Mission VALUES

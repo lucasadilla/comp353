@@ -1,3 +1,6 @@
+DROP DATABASE IF EXISTS rentruck;
+CREATE DATABASE rentruck;
+USE rentruck;
 -- Customer tables
 CREATE TABLE IF NOT EXISTS Customer(
     CustomerID CHAR(10) NOT NULL PRIMARY KEY,
